@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7M Local AI Studio & 100-Parameter Ephemeral Model</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: #1e293b;
+            --accent: #06b6d4;
+            --accent-hover: #0891b2;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: #334155;
+            --highlight: #f59e0b;
+            --success: #10b981;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        h1, h2, h3 {
+            margin-top: 0;
+            color: var(--accent);
+        }
+        .badge {
+            background: rgba(6, 182, 212, 0.2);
+            color: var(--accent);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: var(--accent);
+            color: #000;
+            font-weight: bold;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+        button.danger {
+            background-color: #ef4444;
+            color: white;
+        }
+        button.secondary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        /* 1cm x 1cm Compact Weight Grid Cells */
+        .weight-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1cm);
+            gap: 3px;
+            margin-top: 10px;
+            justify-content: start;
+        }
+        .weight-cell {
+            width: 1cm;
+            height: 1cm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.55rem;
+            font-family: monospace;
+            border-radius: 3px;
+            color: #000;
+            font-weight: bold;
+            box-sizing: border-box;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .log-box {
+            background: #090d16;
+            color: #10b981;
+            font-family: monospace;
+            padding: 10px;
+            border-radius: 6px;
+            height: 150px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+        }
+        .code-box {
+            background: #090d16;
+            color: #f1f5f9;
+            font-family: monospace;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+        .number-stream-box {
+            background: #020617;
+            color: #38bdf8;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            border: 1px solid #1e293b;
+            max-height: 120px;
+            overflow-y: auto;
+            word-break: break-all;
+            line-height: 1.4;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .download-banner {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align: center;">⚡ 7M Local AI Studio & Ephemeral Micro-Model Hub</h1>
+    <p style="text-align: center; color: var(--text-sub);">Interactive Dual-Model Architecture & Python Pipeline Controls</p>
+
+    <div class="download-banner full-width" style="max-width: 1200px; margin: 0 auto 20px auto;">
+        <h3 style="color: var(--success); margin-bottom: 5px;">📦 Project Downloads & System Recovery</h3>
+        <p style="margin-top: 0; color: var(--text-sub); font-size: 0.9rem;">
+            Download the complete local deployment bundle or grab an isolated replacement copy of the 7M model weights.
+        </p>
+        <button class="secondary" onclick="downloadProjectBundle()">📥 Download Complete Project Bundle (.zip)</button>
+        <button class="secondary" onclick="downloadModelOnly()">🔄 Download 7M Model Weights Replacement (model.safetensors)</button>
+        <button onclick="exportWeightsAsPy()">🐍 Export Converted Numbers as PyTorch Tensor</button>
+    </div>
+
+    <div class="container">
+        <!-- 100 PARAMETER TOY MODEL -->
+        <div class="panel">
+            <h2>🧠 100-Parameter Ephemeral Model <span class="badge">In-Browser JS</span></h2>
+            <p style="color: var(--text-sub); font-size: 0.9rem;">
+                Learns single-word numerical representations live. Visual grid uses 1cm x 1cm compact weight indicators.
+            </p>
+            
+            <label>Target Word / Token:</label>
+            <input type="text" id="targetWord" value="apple">
+
+            <div class="controls">
+                <button onclick="trainToyModel()">Train 50 Steps</button>
+                <button class="danger" onclick="resetToyWeights()">Catastrophic Reset</button>
+            </div>
+
+            <div>
+                <strong>Model Status:</strong> <span id="toyLoss">Loss: Uninitialized</span>
+            </div>
+
+            <h3>100 Weight Matrix (1cm x 1cm Cells)</h3>
+            <div id="weightGrid" class="weight-grid"></div>
+        </div>
+
+        <!-- 7M MODEL BACKEND INTERFACE -->
+        <div class="panel">
+            <h2>🚀 7M Model & SQLite Database</h2>
+            <p style="color: var(--text-sub); font-size: 0.9rem;">
+                Connects to local <code>app.py</code> running PyTorch + <code>model.safetensors</code> + <code>data.db</code>.
+            </p>
+
+            <label>Prompt:</label>
+            <textarea id="promptInput" rows="3">explain electricity</textarea>
+
+            <div style="margin-bottom: 10px;">
+                <label><input type="checkbox" id="useDb" checked> Enable SQLite Database Retrieval</label>
+            </div>
+
+            <button onclick="query7MBackend()">Generate Response</button>
+
+            <h3>Output Response</h3>
+            <div id="apiOutput" class="log-box">Waiting for backend connection (http://127.0.0.1:8000)...</div>
+        </div>
+
+        <!-- SEPARATE SECTION: CONVERTED AI LANGUAGE NUMBERS PRINT -->
+        <div class="panel full-width">
+            <h2>🔢 Converted AI Language Stream (Numerical Vector)</h2>
+            <p style="color: var(--text-sub); font-size: 0.9rem;">
+                This section prints the raw numerical values ("AI language numbers") extracted directly from the neural network parameters for user inspection.
+            </p>
+            <div id="aiNumberStream" class="number-stream-box">[Waiting for training to generate numerical parameter stream...]</div>
+        </div>
+
+        <!-- PYTHON INJECTION CODE GENERATOR -->
+        <div class="panel full-width">
+            <h2>🐍 Converted Numbers Export & PyTorch Injection Code</h2>
+            <p style="color: var(--text-sub); font-size: 0.9rem;">
+                Copy the code snippet below directly into <code>app.py</code> to inject converted numbers into the 7M model's embedding matrix.
+            </p>
+            <div id="pythonCodeExport" class="code-box"># Train the 100-parameter model above to generate PyTorch tensor injection code...</div>
+        </div>
+
+        <!-- LOGS & TENSOR DATA -->
+        <div class="panel full-width">
+            <h2>📊 Real-Time Matrix Transformation Log</h2>
+            <div id="systemLog" class="log-box" style="height: 150px;">[System initialized. Ready for 100-parameter micro-training or 7M API inference.]</div>
+        </div>
+    </div>
+
+    <script>
+        let weights = new Float32Array(100);
+
+        function resetToyWeights() {
+            for (let i = 0; i < 100; i++) {
+                weights[i] = (Math.random() - 0.5) * 2;
+            }
+            log("⚡ Catastrophic Reset: All 100 weights wiped to random Gaussian noise!");
+            renderWeights();
+            updateExportCode();
+            document.getElementById('toyLoss').innerText = "Loss: Reset";
+        }
+
+        function renderWeights() {
+            const grid = document.getElementById('weightGrid');
+            grid.innerHTML = '';
+            weights.forEach((w, idx) => {
+                const cell = document.createElement('div');
+                cell.className = 'weight-cell';
+                const norm = Math.min(Math.max((w + 2) / 4, 0), 1);
+                const r = Math.floor((1 - norm) * 255);
+                const g = Math.floor(norm * 255);
+                cell.style.backgroundColor = `rgb(${r}, ${g}, 150)`;
+                cell.innerText = w.toFixed(1);
+                cell.title = `Weight #${idx}: ${w.toFixed(4)}`;
+                grid.appendChild(cell);
+            });
+        }
+
+        function trainToyModel() {
+            const target = document.getElementById('targetWord').value || "apple";
+            const targetVal = target.charCodeAt(0) % 10;
+            let loss = 0;
+
+            for (let step = 0; step < 50; step++) {
+                loss = 0;
+                for (let i = 0; i < 100; i++) {
+                    let pred = weights[i] * 0.5;
+                    let err = pred - (targetVal / 10);
+                    weights[i] -= 0.05 * err;
+                    loss += err * err;
+                }
+            }
+            loss /= 100;
+
+            document.getElementById('toyLoss').innerText = `Loss: ${loss.toFixed(6)}`;
+            log(`🎯 Trained 100-parameter model on '${target}'. Final Loss: ${loss.toFixed(6)}`);
+            renderWeights();
+            updateExportCode();
+        }
+
+        function updateExportCode() {
+            const target = document.getElementById('targetWord').value || "apple";
+            const numList = Array.from(weights).map(w => w.toFixed(6));
+            
+            // Render separate AI language numbers section
+            const streamBox = document.getElementById('aiNumberStream');
+            streamBox.innerText = `Token Target: "${target}"\nExtracted AI Language Parameters (100 Floats):\n[ ` + numList.join(", ") + " ]";
+
+            const formattedWeights = numList.join(", ");
+            const code = `# Python snippet to add converted numbers directly into 7M model weights
+import torch
+
+# 1. Converted numerical weights extracted from 100-parameter ephemeral model for token: '${target}'
+converted_numbers = torch.tensor([
+    ${formattedWeights}
+], dtype=torch.float32)
+
+# 2. Inject numbers into 7M model embedding layer or bias term inside app.py
+def inject_numbers_to_7m_model(model, token_id, converted_tensor):
+    with torch.no_grad():
+        if hasattr(model, 'embedding'):
+            model.embedding.weight[token_id][:len(converted_tensor)] += converted_tensor * 0.01
+        print(f"Successfully injected {len(converted_tensor)} parameters into 7M model context matrix!")
+`;
+            document.getElementById('pythonCodeExport').innerText = code;
+        }
+
+        function exportWeightsAsPy() {
+            const code = document.getElementById('pythonCodeExport').innerText;
+            const blob = new Blob([code], { type: 'text/x-python' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted_weights_injection.py';
+            a.click();
+            log('💾 Exported Python injection script with converted weight numbers.');
+        }
+
+        function downloadProjectBundle() {
+            window.location.href = "/MyAIFolder.zip";
+        }
+
+        function downloadModelOnly() {
+            window.location.href = "/model.safetensors";
+        }
+
+        async function query7MBackend() {
+            const prompt = document.getElementById('promptInput').value;
+            const useDb = document.getElementById('useDb').checked;
+            const outBox = document.getElementById('apiOutput');
+
+            outBox.innerText = "Sending request to python app.py backend...";
+
+            try {
+                const res = await fetch("http://127.0.0.1:8000/api/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: prompt, use_db: useDb })
+                });
+                const data = await res.json();
+                outBox.innerText = data.response || JSON.stringify(data);
+                log(`✅ API 200 OK: Response received from local 7M model backend.`);
+            } catch (e) {
+                outBox.innerText = "⚠️ Could not connect to http://127.0.0.1:8000.\n\nMake sure you run 'python app.py' inside your MyAIFolder!";
+                log(`❌ Connection Error: Local backend unavailable.`);
+            }
+        }
+
+        function log(msg) {
+            const box = document.getElementById('systemLog');
+            box.innerHTML += `<br>> ${msg}`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        resetToyWeights();
+    </script>
+</body>
+</html>

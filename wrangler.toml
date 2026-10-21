@@ -1,0 +1,5 @@
+name = "ai-india"
+compatibility_date = "2026-10-20"
+
+[assets]
+directory = "./public"
